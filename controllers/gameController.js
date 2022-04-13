@@ -66,3 +66,14 @@ exports.nextTurn = async (req, res) => {
         res.status(200).json({ success: true, msg: "Next Turn", response });           
     };
 };
+
+exports.drawBasic = async (req, res) => {
+    const { uid } = req.userInfo;
+    const { gameName } = req.body;
+    const [response, err] = await BackendGameService.drawBasic(gameName, uid);
+    if (err) {
+        res.status(403).json({ success: false, msg: err });
+    } else {
+        res.status(200).json({ success: true, msg: "Drawn Basic!", response });           
+    };
+};

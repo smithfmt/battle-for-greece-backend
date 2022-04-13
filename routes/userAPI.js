@@ -86,4 +86,8 @@ router.put("/nextTurn",
   gameController.nextTurn,
 );
 
+router.put("/drawBasic",
+  gameController.drawBasic,
+);
+
 module.exports = router;

@@ -1,22 +1,19 @@
-module.exports.basicCards = {  
-    basic1 : {img : "Warrior1", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
-    basic2 : {img : "Warrior2", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
-    basic3 : {img : "Warrior3", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
-    basic4 : {img : "Warrior4", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
-    basic5 : {img : "Archer1", name : "Archer", atk : 1, hp : 1, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Ranged", style : "passive", cost : 0, desc : "All attacks are ranged",},
-    basic6 : {img : "Archer2", name : "Archer", atk : 1, hp : 1, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Ranged", style : "passive", cost : 0, desc : "All attacks are ranged",},
-    basic7 : {img : "Horseman1", name : "Horseman", atk : 2, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Charge", style : "bolt", cost : 0, desc : "Can always attack first",},
-    basic8 : {img : "Horseman2", name : "Horseman", atk : 2, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Charge", style : "bolt", cost : 0, desc : "Can always attack first",},
-};
-
-module.exports.basicCards2 = {
-    basic1 : {img : "Helmet1", name : "Helmet", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A trusty helmet",},
-    basic2 : {img : "Helmet2", name : "Helmet", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A trusty helmet",},
-    basic3 : {img : "Shield1", name : "Shield", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A tough shield",},
-    basic4 : {img : "Shield2", name : "Shield", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A tough shield",},
-    basic5 : {img : "Sword1", name : "Sword", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A sharp sword",},
-    basic6 : {img : "Sword2", name : "Sword", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A sharp sword",},
-};
+module.exports.basicCards = [
+    {img : "Warrior1", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
+    {img : "Warrior2", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
+    {img : "Warrior3", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
+    {img : "Warrior4", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
+    {img : "Archer1", name : "Archer", atk : 1, hp : 1, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Ranged", style : "passive", cost : 0, desc : "All attacks are ranged",},
+    {img : "Archer2", name : "Archer", atk : 1, hp : 1, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Ranged", style : "passive", cost : 0, desc : "All attacks are ranged",},
+    {img : "Horseman1", name : "Horseman", atk : 2, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Charge", style : "bolt", cost : 0, desc : "Can always attack first",},
+    {img : "Horseman2", name : "Horseman", atk : 2, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Charge", style : "bolt", cost : 0, desc : "Can always attack first",},
+    {img : "Helmet1", name : "Helmet", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A trusty helmet",},
+    {img : "Helmet2", name : "Helmet", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A trusty helmet",},
+    {img : "Shield1", name : "Shield", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A tough shield",},
+    {img : "Shield2", name : "Shield", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A tough shield",},
+    {img : "Sword1", name : "Sword", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A sharp sword",},
+    {img : "Sword2", name : "Sword", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A sharp sword",},
+];
 
 module.exports.warCards = {
     war1 : {img : "Leuctra", ability : "The Battle of Leuctra", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
