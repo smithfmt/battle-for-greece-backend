@@ -1,8 +1,9 @@
-const { body, validationResult } = require("express-validator");
+import { body, validationResult } from "express-validator";
+import { Firestore } from '@google-cloud/firestore';
 
-const Firestore = require('@google-cloud/firestore');
-
-const BackendLobbyService = require("../services/BackendLobbyService");
+import BackendLobbyService from "../services/BackendLobbyService";
+import { NextFunction, Response } from "express";
+import { AuthRequest, UserType } from "../types";
 
 const db = new Firestore({
   projectId: 'struggle-for-greece-4f90c',
@@ -13,7 +14,7 @@ let profanity = [
     "fuck", "f0ck", "f*ck", "cunt", "c0nt", "c*nt", "shit","sh1t", "5hit", "5h1t", "sh*t", "bitch", "b1tch", "b*tch", "ass", "a55", "crap"
 ];
 
-exports.validateAccount = [
+export const validateAccount = [
     body("username", "You must supply a username").notEmpty(),
     body("username", "Please only use numbers and letters for your username").isAlphanumeric(),
     body("username", "Please refrain from profanity in your username").custom((name) => {
@@ -25,7 +26,7 @@ exports.validateAccount = [
         });
         return clean;
     }),
-    (req, res, next) => {
+    (req:AuthRequest, res:Response, next:NextFunction) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             //consolg.log(errors.array());
@@ -35,7 +36,7 @@ exports.validateAccount = [
     },
 ];
 
-exports.createAccount = async (req, res) => {
+export const createAccount = async (req:AuthRequest, res:Response) => {
     const { username } = req.body;
     const { userInfo } = req;
     const { uid, name } = userInfo;
@@ -63,7 +64,7 @@ exports.createAccount = async (req, res) => {
     };
 };
 
-exports.deleteAccount = async (req, res) => {
+export const deleteAccount = async (req:AuthRequest, res:Response) => {
     const { userInfo } = req;
     const { uid } = userInfo;
     const usersRef = db.collection('users');
@@ -83,11 +84,11 @@ exports.deleteAccount = async (req, res) => {
     } 
 };
 
-exports.getAllUsers = async (req, res) => {
+export const getAllUsers = async (req:AuthRequest, res:Response) => {
     try {
         const usersRef = db.collection('users');
         const usersSnapshot = await usersRef.get();
-        const users = [];
+        const users:UserType[] = [];
         usersSnapshot.forEach(snapshot => {
             const { username, wins, games } = snapshot.data();
             users.push({username, wins, games});
@@ -96,4 +97,11 @@ exports.getAllUsers = async (req, res) => {
     } catch {
         res.status(500).json({ success: false, msg: "Internal Server Error" });
     };
+};
+
+export default {
+    validateAccount,
+    createAccount,
+    deleteAccount,
+    getAllUsers,
 };

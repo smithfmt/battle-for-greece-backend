@@ -1,14 +1,15 @@
-const { ref, set, child, get, remove } = require("firebase/database");
-const { base } = require("../config/firebase-config");
-const lobbiesRef = ref(base, "lobbies");
+import { set, remove } from "firebase/database";
+import { LobbyType, PlayerType, UserType } from "../types";
+import { base } from "../config/firebase-config";
+const lobbiesRef = base.ref("lobbies");
 
-const getLobby = async (lobbyName) => {
-  const lobbyRef = child(lobbiesRef, lobbyName);
-  const lobbySnapshot = await get(lobbyRef);
+const getLobby = async (lobbyName:string) => {
+  const lobbyRef = lobbiesRef.child(lobbyName);
+  const lobbySnapshot = await lobbyRef.get();
   return [lobbySnapshot.val(), lobbyRef];
 };
 
-const create = async (lobby) => {
+export const create = async (lobby:LobbyType) => {
   try {
     const [lobbyData, lobbyRef] = await getLobby(lobby.lobbyName);
     if (lobbyData) {
@@ -22,14 +23,14 @@ const create = async (lobby) => {
   };
 };
 
-const join = async (lobbyName, uid, user) => {
+export const join = async (lobbyName:string, uid:string, user:UserType) => {
   try {
     const [lobbyData, lobbyRef] = await getLobby(lobbyName);
     if (!lobbyData) {
       return [false, "This lobby does not exist"];
     } else {
       const playersData = lobbyData.players || [];
-      if (playersData.filter(player => player.uid===uid).length) {
+      if (playersData.filter((player:PlayerType) => player.uid===uid).length) {
         return [false, "This player is already in this lobby"];
       } else if (!(playersData.length<lobbyData.playerCount)) {
         return [false, "Sorry! This lobby is full"];
@@ -45,7 +46,7 @@ const join = async (lobbyName, uid, user) => {
   };
 };
 
-const close = async (lobbyName) => {
+export const close = async (lobbyName:string) => {
   try {
     const [lobbyData, lobbyRef] = await getLobby(lobbyName);
     if (!lobbyData) {
@@ -59,14 +60,14 @@ const close = async (lobbyName) => {
   };
 };
 
-const leave = async (lobbyName, uid) => {
+export const leave = async (lobbyName:string, uid:string) => {
   try {
     const [lobbyData, lobbyRef] = await getLobby(lobbyName);
     if (!lobbyData) {
       return [false, "This lobby does not exist"];
     } else {
       let { players } = lobbyData;
-      if (!players.filter(player => {return player.uid===uid}).length) {
+      if (!players.filter((player:PlayerType) => {return player.uid===uid}).length) {
         return [false, "This player is not in this lobby"];
       } else {
         players.splice(players.indexOf(uid),1);
@@ -79,7 +80,7 @@ const leave = async (lobbyName, uid) => {
   };
 };
 
-module.exports = {
+export default {
   create,
   join,
   close,

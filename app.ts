@@ -1,13 +1,13 @@
-const createError = require('http-errors');
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const cors = require("cors");
+import createError from 'http-errors';
+import express, { Request, Response, NextFunction } from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import cors from "cors";
 
-const indexRouter = require('./routes/index');
-const userAPIRouter = require("./routes/userAPI");
-const middleware = require('./middleware/index.js');
+import indexRouter from './routes/index';
+import userAPIRouter from "./routes/userAPI";
+import middleware from './middleware/index.js';
 
 
 const app = express();
@@ -33,7 +33,7 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err:any, req:Request, res:Response, next:NextFunction) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

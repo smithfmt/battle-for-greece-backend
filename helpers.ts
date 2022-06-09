@@ -1,4 +1,4 @@
-module.exports.slugify = (str) => {
+export const slugify = (str:string) => {
     str = str.replace(/^\s+|\s+$/g, ''); // trim
     str = str.toLowerCase();
   
@@ -17,7 +17,7 @@ module.exports.slugify = (str) => {
     return str;
 };
 
-module.exports.compare = (str1, str2) => {
+export const compare = (str1:string, str2:string) => {
     let position = 0;
     let score = 0;
     let result = [];
@@ -51,7 +51,7 @@ module.exports.compare = (str1, str2) => {
     return [result, percentage];
 };
 
-module.exports.shuffle = (array) => {
+export const shuffle = (array:any[]) => {
     var currentIndex = array.length, temporaryValue, randomIndex;
   
     // While there remain elements to shuffle...
@@ -65,7 +65,6 @@ module.exports.shuffle = (array) => {
       temporaryValue = array[currentIndex];
       array[currentIndex] = array[randomIndex];
       array[randomIndex] = temporaryValue;
-    }
-  
+    };  
     return array;
-  }
+  };

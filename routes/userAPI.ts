@@ -1,10 +1,12 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const userController = require("../controllers/userController");
-const lobbyController = require("../controllers/lobbyController");
-const gameController = require("../controllers/gameController");
+import userController from "../controllers/userController";
+import lobbyController from "../controllers/lobbyController";
+import gameController from "../controllers/gameController";
 router.use(express.json());
-const Firestore = require('@google-cloud/firestore');
+import { Firestore } from '@google-cloud/firestore';
+
+import { AuthRequest } from "../types";
 
 const db = new Firestore({
   projectId: 'struggle-for-greece-4f90c',
@@ -39,7 +41,7 @@ router.post("/test",
   },
 );
 
-router.get("/profile", async (req, res) => {
+router.get("/profile", async (req:AuthRequest, res) => {
   const { userInfo } = req;
   const { uid } = userInfo;
   const userDoc = await db.collection('users').doc(uid).get();
@@ -90,4 +92,4 @@ router.put("/drawBasic",
   gameController.drawBasic,
 );
 
-module.exports = router;
+export default router;

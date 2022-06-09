@@ -1,4 +1,4 @@
-module.exports.basicCards = [
+export const basicCards = [
     {img : "Warrior1", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
     {img : "Warrior2", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
     {img : "Warrior3", name : "Warrior", atk : 1, hp : 2, connect : 2, red : 0, green : 0, blue : 0, type : "basic", ability : "Soldier", style : "passive", cost : 0, desc : "A brave soldier for your army",},
@@ -15,7 +15,7 @@ module.exports.basicCards = [
     {img : "Sword2", name : "Sword", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A sharp sword",},
 ];
 
-module.exports.warCards = {
+export const warCards = {
     war1 : {img : "Leuctra", ability : "The Battle of Leuctra", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
     war2 : {img : "PeloponnesianWar", ability : "The Peloponnesian War", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
     war3 : {img : "TrojanWar", ability : "The Trojan War", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
@@ -26,7 +26,7 @@ module.exports.warCards = {
     war8 : {img : "Titanomachy", ability : "The Titanomachy", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
 }
 
-module.exports.heroes = {
+export const heroes = {
 // Heroes
     hero1 : {img : "Heracles", name : "Heracles", atk : 6, hp : 9, connect : 4, red : 3, green : 1, blue : 0, type : "hero", ability : "Strength of the Gods", style : "bolt", cost : 3, desc : "Deal +3 dmg on first attack",},
     hero2 : {img : "Perseus", name : "Perseus", atk : 4, hp : 8, connect : 4, red : 1, green : 2, blue : 1, type : "hero", ability : "Medusa's Gaze", style : "bolt", cost : 3, desc : "Stun 2 Enemies",},
@@ -90,7 +90,7 @@ module.exports.heroes = {
     nemeanLionMonster : {img : "NemeanLion", name : "Nemean Lion", atk : 5, hp : 7, connect : 4, red : 0, green : 0, blue : 0, cost: 4, type : "monster", style : "passive", ability : "Thick Skinned", desc : "Reduces all incoming dmg by 1",},
 };
 
-module.exports.generals = [
+export const generals = [
     {img : "Agamemnon", name : "Agamemnon", atk : 2, hp : 10, connect : 4, red : 4, green : 0, blue : 0, type : "general", ability : "Leader of the Greeks", style : "passive", cost : 0, desc : "All soldiers deal +1 dmg",},
     {img : "Pericles", name : "Pericles", atk : 1, hp : 10, connect : 4, red : 0, green : 1, blue : 3, type : "general", ability : "Voice of Democracy", style : "passive", cost : 0, desc : "Connected soldiers deal +2 dmg",},
     {img : "Leonidas", name : "Leonidas", atk : 2, hp : 10, connect : 4, red : 3, green : 1, blue : 0, type : "general", ability : "Spartan Warcry", style : "passive", cost : 0, desc : "Leonidas must be killed first by the enemy",},
