@@ -24,7 +24,12 @@ export type PlayerType = {
 
 export type LobbyType = {
   lobbyName: string,
-
+  playerCount: number,
+  players: {
+    uid: string,
+    username: string,
+  }[],
+  host: string,
 };
 
 export interface UserType extends DocumentData {
@@ -32,11 +37,17 @@ export interface UserType extends DocumentData {
   wins?: number,
   games?: number,
   open?: {
-    lobby: string|undefined,
-    game: string|undefined,
+    lobby: string|false,
+    game: string|false,
   },
 };
 
 export type GameType = {
-
+  players: {
+    uid: string,
+    username: string,
+  }[],
+  gamename: string,
+  whoTurn: string,
+  turnOrder: string[],
 };

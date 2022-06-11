@@ -21,7 +21,7 @@ class Middleware {
             } else {
                 return res.status(500).json({ success: false, msg: `Internal Error` });
             };
-        };        
+        };
     };
 };
 

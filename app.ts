@@ -7,11 +7,11 @@ import cors from "cors";
 
 import indexRouter from './routes/index';
 import userAPIRouter from "./routes/userAPI";
-import middleware from './middleware/index.js';
+import middleware from './middleware/index';
 
 
 const app = express();
-
+console.log("!~! Starting the Backend !~!")
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -28,12 +28,12 @@ app.use('/', indexRouter);
 app.use(middleware.decodeToken);
 app.use("/userAPI", userAPIRouter);
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err:any, req:Request, res:Response, next:NextFunction) {
+app.use((err:any, req:Request, res:Response, next:NextFunction) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -43,4 +43,4 @@ app.use(function(err:any, req:Request, res:Response, next:NextFunction) {
   res.render('error');
 });
 
-module.exports = app;
+export default app;

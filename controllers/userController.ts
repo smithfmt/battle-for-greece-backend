@@ -10,7 +10,7 @@ const db = new Firestore({
   keyFilename: './config/serviceAccount.json',
 });
 
-let profanity = [
+const profanity = [
     "fuck", "f0ck", "f*ck", "cunt", "c0nt", "c*nt", "shit","sh1t", "5hit", "5h1t", "sh*t", "bitch", "b1tch", "b*tch", "ass", "a55", "crap"
 ];
 
@@ -29,7 +29,7 @@ export const validateAccount = [
     (req:AuthRequest, res:Response, next:NextFunction) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            //consolg.log(errors.array());
+            // consolg.log(errors.array());
             return errors.array().forEach(err => res.status(402).json({ success: false, msg: err.msg }));
         };
         next();
@@ -72,16 +72,16 @@ export const deleteAccount = async (req:AuthRequest, res:Response) => {
     const userData = userSnapshot.data();
     try {
         if (userData.lobby) {
-            const [leaveResponse, leaveErr] = await BackendLobbyService.leave(userData.lobby, uid);
-            if (!leaveResponse.length) {
-                const [closeResonse, closeErr] = await BackendLobbyService.close(userData.lobby);
+            const { response, error } = await BackendLobbyService.leave(userData.lobby, uid);
+            if (response && !response.length) {
+                const { response, error } = await BackendLobbyService.close(userData.lobby);
             };
         };
         await usersRef.doc(uid).delete();
         res.status(200).json({ success: true, msg: "Successfully deleted user", uid });
     } catch {
         res.status(500).json({ success: false, msg: "Internal Server Error" });
-    } 
+    }
 };
 
 export const getAllUsers = async (req:AuthRequest, res:Response) => {

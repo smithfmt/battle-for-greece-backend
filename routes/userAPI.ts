@@ -15,7 +15,7 @@ const db = new Firestore({
 
 // Api is Working //
 
-router.get("/", function(req, res, next) {
+router.get("/", (req, res, next) => {
   res.send(`userAPI is working properly :)`);
 });
 
@@ -53,7 +53,7 @@ router.get("/profile", async (req:AuthRequest, res) => {
   };
 });
 
-router.post("/account", 
+router.post("/account",
   userController.validateAccount,
   userController.createAccount,
 );

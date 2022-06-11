@@ -1,12 +1,12 @@
 export const slugify = (str:string) => {
     str = str.replace(/^\s+|\s+$/g, ''); // trim
     str = str.toLowerCase();
-  
-    // remove accents, swap ñ for n, etc
-    var from = "àáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
-    var to   = "aaaaaeeeeiiiioooouuuunc------";
 
-    for (var i=0, l=from.length ; i<l ; i++) {
+    // remove accents, swap ñ for n, etc
+    const from = "àáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
+    const to   = "aaaaaeeeeiiiioooouuuunc------";
+
+    for (let i=0, l=from.length ; i<l ; i++) {
         str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
     }
 
@@ -20,7 +20,7 @@ export const slugify = (str:string) => {
 export const compare = (str1:string, str2:string) => {
     let position = 0;
     let score = 0;
-    let result = [];
+    const result:{char:string,correct:string}[] = [];
     let last = true;
     let offset = false;
     const test = str1.split("");
@@ -52,19 +52,20 @@ export const compare = (str1:string, str2:string) => {
 };
 
 export const shuffle = (array:any[]) => {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-  
+    let currentIndex = array.length;
+    let temporaryValue:any;
+    let randomIndex:number;
+
     // While there remain elements to shuffle...
     while (0 !== currentIndex) {
-  
       // Pick a remaining element...
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex -= 1;
-  
+
       // And swap it with the current element.
       temporaryValue = array[currentIndex];
       array[currentIndex] = array[randomIndex];
       array[randomIndex] = temporaryValue;
-    };  
+    };
     return array;
   };
