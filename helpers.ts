@@ -1,3 +1,6 @@
+import { SquareType } from "./types";
+import _ from 'lodash';
+
 export const slugify = (str:string) => {
     str = str.replace(/^\s+|\s+$/g, ''); // trim
     str = str.toLowerCase();
@@ -68,4 +71,14 @@ export const shuffle = (array:any[]) => {
       array[randomIndex] = temporaryValue;
     };
     return array;
+  };
+
+export const removeDuplicates = (squareArr:SquareType[]) => {
+    let result:SquareType[] = []
+    squareArr.forEach(square => {
+      if (!result.filter(resSquare => {return _.isEqual(resSquare, square);}).length) {
+        result.push(square);
+      };
+    });
+    return result;
   };

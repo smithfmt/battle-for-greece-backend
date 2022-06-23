@@ -1,11 +1,10 @@
-import { set, remove } from "firebase/database";
 import _ from 'lodash';
 import { CardType, PlayerType, SquareType, LobbyType, GameType } from "../types";
 import { base } from "../config/firebase-config";
 const lobbiesRef = base.ref("lobbies");
 const gamesRef = base.ref("games");
 import { generals, basicCards } from "../data";
-import { shuffle } from "../helpers";
+import { shuffle, removeDuplicates } from "../helpers";
 
 const getLobby = async (lobbyName:string) => {
   const lobbyRef = lobbiesRef.child(lobbyName)
@@ -85,7 +84,7 @@ const cardConnect = (card:CardType) => {
 
 const canPlace = (cards:{card:CardType,square:SquareType}[]) => {
   const occupied = cards.map(cardObj => {return cardObj.square});
-  const connectedSquares:SquareType[] = [];
+  let connectedSquares:SquareType[] = [];
   cards.forEach(cardObj => {
     const square = cardObj.square;
     const connections = cardObj.card.connections;
@@ -115,9 +114,11 @@ const canPlace = (cards:{card:CardType,square:SquareType}[]) => {
       };
     });
   });
-  const res = connectedSquares.filter(square => {
+  connectedSquares = removeDuplicates(connectedSquares);
+// Filter out occupied squares
+  const res = _.uniq(connectedSquares).filter(square => {
     return !occupied.filter(occ => {
-      occ.every(i => square.includes(i));
+      return _.isEqual(occ, square);
     }).length;
   });
   return res;
@@ -226,17 +227,29 @@ export const updatePlayer = async (gameName:string, player:string, updating:stri
       return { error: "This game does not exist"};
     }
     const updatedGameData = {...gameData};
+    const updatedPlayer = updatedGameData.players[player];
     switch (updating) {
       case "general":
-        updatedGameData.players[player].board = {cards: [data]};
-        updatedGameData.players[player].generalChoice = null;
+        updatedPlayer.board = {cards: [data]};
+        updatedPlayer.generalChoice = null;
         break;
       case "placeCard":
-        updatedGameData.players[player].hand = updatedGameData.players[player].hand.filter((card:CardType) => {
+        updatedPlayer.hand = updatedPlayer.hand.filter((card:CardType) => {
           return !_.isEqual(card, data.card);
         });
-        updatedGameData.players[player].board.cards.push(data);
-        updatedGameData.players[player].board.canPlace = canPlace(updatedGameData.players[player].board.cards);
+        updatedPlayer.board.cards.push(data);
+        updatedPlayer.board.canPlace = canPlace(updatedPlayer.board.cards);
+        break;
+      case "pickupCard":
+        console.log(data.card.type)
+        if (data.card.type==="general") break;
+        updatedPlayer.board.cards = updatedPlayer.board.cards.filter((cardObj:{card:CardType,square:SquareType}) => {
+          return !_.isEqual(cardObj.square, data.square);
+        });
+        updatedPlayer.hand? 
+          updatedPlayer.hand.push(data.card) :
+          updatedPlayer.hand = [data.card];
+          updatedPlayer.board.canPlace = canPlace(updatedPlayer.board.cards);
         break;
       default:
         break;
