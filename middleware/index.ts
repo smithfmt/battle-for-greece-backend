@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import admin from "../config/firebase-config";
 
-import { AuthRequest } from "../types";
+import { AuthRequest } from "../backend-types";
 
 class Middleware {
     async decodeToken(req: AuthRequest, res:Response, next:NextFunction) {

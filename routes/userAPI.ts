@@ -6,7 +6,7 @@ import gameController from "../controllers/gameController";
 router.use(express.json());
 import { Firestore } from '@google-cloud/firestore';
 
-import { AuthRequest } from "../types";
+import { AuthRequest } from "../backend-types";
 
 const db = new Firestore({
   projectId: 'struggle-for-greece-4f90c',

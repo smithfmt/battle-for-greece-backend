@@ -1,4 +1,4 @@
-import { LobbyType, PlayerType, UserType } from "../types";
+import { LobbyType, PlayerType, UserType } from "../backend-types";
 import { base } from "../config/firebase-config";
 const lobbiesRef = base.ref("lobbies");
 

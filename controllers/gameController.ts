@@ -1,6 +1,5 @@
-import { body, validationResult } from "express-validator";
 import { Firestore } from '@google-cloud/firestore';
-import { AuthRequest, UserType } from "../types";
+import { AuthRequest, UserType } from "../backend-types";
 import { NextFunction, Response } from "express";
 
 import BackendGameService from "../services/BackendGameService";

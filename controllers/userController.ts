@@ -3,7 +3,7 @@ import { Firestore } from '@google-cloud/firestore';
 
 import BackendLobbyService from "../services/BackendLobbyService";
 import { NextFunction, Response } from "express";
-import { AuthRequest, UserType } from "../types";
+import { AuthRequest, UserType } from "../backend-types";
 
 const db = new Firestore({
   projectId: 'struggle-for-greece-4f90c',

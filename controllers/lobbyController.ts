@@ -4,7 +4,7 @@ import { Firestore } from '@google-cloud/firestore';
 import BackendLobbyService from "../services/BackendLobbyService";
 import BackendGameService from "../services/BackendGameService";
 import { NextFunction, Response } from "express";
-import { AuthRequest, UserType, LobbyType, GameType } from "../types";
+import { AuthRequest, UserType } from "../backend-types";
 
 const db = new Firestore({
   projectId: 'struggle-for-greece-4f90c',
@@ -30,7 +30,7 @@ const cleanupLobbies = async ({lobby, game}:{lobby:string|false, game:string|fal
     };
     if (game) {
         const { response: leaveResponse, error: leaveError } = await BackendGameService.leave(game, uid);
-        if (!leaveResponse && !leaveResponse.length) {
+        if (leaveResponse && !leaveResponse.length) {
             const { response: closeResonse, error: closeError } = await BackendGameService.close(game);
             console.log(closeResonse, closeError);
         };

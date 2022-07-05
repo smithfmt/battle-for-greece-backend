@@ -14,6 +14,12 @@ export type CardType = {
   background?: string[],
   color?: string,
   square?:SquareType,
+  cost?: number,
+  costArr?: string[],
+  activeConnections?: string[],
+  name: string,
+  id?: number,
+  ability: string,
 };
 
 export type SquareType = [number,number];
@@ -50,4 +56,8 @@ export type GameType = {
   gamename: string,
   whoTurn: string,
   turnOrder: string[],
+  shopOrder: CardType[],
+  shopBought: boolean,
+  cycleShop: number,
+  whoFirst: string,
 };

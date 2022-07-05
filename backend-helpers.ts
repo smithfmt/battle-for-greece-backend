@@ -1,4 +1,4 @@
-import { SquareType } from "./types";
+import { SquareType } from "./backend-types";
 import _ from 'lodash';
 
 export const slugify = (str:string) => {
@@ -81,4 +81,68 @@ export const removeDuplicates = (squareArr:SquareType[]) => {
       };
     });
     return result;
+};
+
+export const loop = (times:number, callback:Function) => {
+    for (let i = 0; i < times; i++) {
+        callback(i);
+    };
+};
+
+export const addArr = (arr1:number[], arr2:number[]) => {
+    return arr1.map((num, i) => {return num+arr2[i];});
+};
+
+export const invertConnection = (number:number) => {
+    switch (number) {
+        case 0: return 2;
+        case 1: return 3;
+        case 2: return 0;
+        case 3: return 1;
+        default: break;
+    };
+};
+
+export const generateMatrixes = (arr:number[], n:number, unique?:boolean) => {
+  if (arr.length===1&&n===1) return [0];
+  const cartesian_product = (xs:number[], ys:any) => {
+    var result = [];
+    for(var i = 0; i < xs.length; i++) {
+      for (var j = 0; j < ys.length; j++) {
+        // transform [ [1, 2], 3 ] => [ 1, 2, 3 ] and append it to result []
+        result.push([].concat.apply([], [ xs[i], ys[j] ]));
+      }
+    }
+    return result;
   };
+  const cartesian_power = (xs:number[], n:number) => {
+    var result:any = xs;
+    for(var i = 1; i < n; i++) {
+      result = cartesian_product(result, xs)
+    };
+    return result;
+  };
+  let result = cartesian_power(arr, n);
+  if (n===1) {
+    result = result.map((val:number) => {return [val]});
+  };
+  if (unique) {
+    const uniqueResult = result.filter((value:number[]) => {
+      if (typeof(value)!=="object") return false;
+      let unique = true;
+      value.forEach(item => {
+        if (value.filter(i => {return i===item}).length>1) return unique = false;
+      });
+      return unique;
+    });
+    return uniqueResult;
+  };
+  return result;
+};    
+export const range = (lowEnd:number, highEnd:number) => {
+  var list = [];
+  for (var i = lowEnd; i <= highEnd; i++) {
+      list.push(i);
+  };
+  return list;
+};
