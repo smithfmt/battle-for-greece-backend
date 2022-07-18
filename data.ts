@@ -15,16 +15,16 @@ export const basicCards = [
     {img : "Sword2", name : "Sword", atk : 1, hp : 2, connect : 1, red : 0, green : 0, blue : 0, type : "basic", ability : "Equipment", style : "passive", cost : 0, desc : "A sharp sword",},
 ];
 
-export const warCards = {
-    war1 : {img : "Leuctra", ability : "The Battle of Leuctra", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
-    war2 : {img : "PeloponnesianWar", ability : "The Peloponnesian War", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
-    war3 : {img : "TrojanWar", ability : "The Trojan War", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
-    war4 : {img : "Thermopylae", ability : "The Battle of Thermopylae", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
-    war5 : {img : "Salamis", ability : "The Battle of Salamis", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
-    war6 : {img : "Marathon", ability : "The Battle of Marathon", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
-    war7 : {img : "Syracuse", ability : "The Battle of Syracuse", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
-    war8 : {img : "Titanomachy", ability : "The Titanomachy", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
-}
+export const battleCards = [
+    {img : "Leuctra", ability : "The Battle of Leuctra", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
+    {img : "PeloponnesianWar", ability : "The Peloponnesian War", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
+    {img : "TrojanWar", ability : "The Trojan War", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
+    {img : "Thermopylae", ability : "The Battle of Thermopylae", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
+    {img : "Salamis", ability : "The Battle of Salamis", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
+    {img : "Marathon", ability : "The Battle of Marathon", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
+    {img : "Syracuse", ability : "The Battle of Syracuse", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
+    {img : "Titanomachy", ability : "The Titanomachy", atk : 1, hp : 2, connect : 0, red : 0, green : 0, blue : 0, type : "battle", name : "Battle", style : "passive", cost : 0, desc : "",},
+];
 
 export const heroCards = [
 // Heroes - 58

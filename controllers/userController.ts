@@ -3,7 +3,7 @@ import { Firestore } from '@google-cloud/firestore';
 
 import BackendLobbyService from "../services/BackendLobbyService";
 import { NextFunction, Response } from "express";
-import { AuthRequest, UserType } from "../backend-types";
+import { AuthRequest, GameType, UserType } from "../backend-types";
 
 const db = new Firestore({
   projectId: 'struggle-for-greece-4f90c',
@@ -13,6 +13,11 @@ const db = new Firestore({
 const profanity = [
     "fuck", "f0ck", "f*ck", "cunt", "c0nt", "c*nt", "shit","sh1t", "5hit", "5h1t", "sh*t", "bitch", "b1tch", "b*tch", "ass", "a55", "crap"
 ];
+
+export const getUser = async (uid:string) => {
+    const userRef = await db.collection('users').doc(uid).get();
+    return(userRef.data());
+};
 
 export const validateAccount = [
     body("username", "You must supply a username").notEmpty(),
@@ -99,9 +104,42 @@ export const getAllUsers = async (req:AuthRequest, res:Response) => {
     };
 };
 
+export const saveGame = async (gameData:GameType, uid:string, winner:string) => {
+    try {
+        const { host, battleFrequency, gameName, whoFirst, winsToWin, players } = gameData;
+        const cards = {};
+        players[uid].board.cards.forEach(cardObj => cards[`${cardObj.square[0]}-${cardObj.square[1]}`]=cardObj.card)
+        const user:UserType = await getUser(uid);
+        if (!user.games) user.games = {};
+        user.games[gameData.gameName] = {
+            host,
+            battleFrequency,
+            gameName,
+            whoFirst,
+            winsToWin,
+            cards,
+            winner,
+        };
+        user.open = {
+            lobby: false,
+            game: false,
+        };
+        if (winner===uid) user.wins?user.wins++:user.wins=1;
+        const usersRef = db.collection('users');
+        console.log("setting!", user)
+        await usersRef.doc(uid).set(user);
+        return { response: "successfully saved"}
+    } catch (e) {
+        console.log(e)
+        return { error: "error contacting database" }
+    };
+};
+
 export default {
     validateAccount,
     createAccount,
     deleteAccount,
     getAllUsers,
+    getUser,
+    saveGame,
 };

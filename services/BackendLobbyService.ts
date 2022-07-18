@@ -63,19 +63,24 @@ export const close = async (lobbyName:string) => {
 export const leave = async (lobbyName:string, uid:string) => {
   try {
     const { lobbyData, lobbyRef } = await getLobby(lobbyName);
-    if (!lobbyData) {
+    let updatedLobbyData = {...lobbyData};
+    if (!updatedLobbyData) {
       return {error: "This lobby does not exist"};
     } else {
-      const { players } = lobbyData;
+      const { players } = updatedLobbyData;
       if (!players.filter((player:PlayerType) => {return player.uid===uid}).length) {
         return {error: "This player is not in this lobby"};
       } else {
         players.splice(players.indexOf(players.filter(player => {return player.uid===uid})[0]),1);
-        await lobbyRef.set(lobbyData)
-        return {response: lobbyData.players};
+        if (!players.length) {
+          updatedLobbyData = null;
+        };
+        await lobbyRef.set(updatedLobbyData)
+        return {response: `successfully left ${lobbyName}`};
       };
     };
-  } catch {
+  } catch (e) {
+    console.log(e)
     return {error: "Error sending to database"};
   };
 };

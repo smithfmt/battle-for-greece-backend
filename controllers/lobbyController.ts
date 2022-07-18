@@ -20,7 +20,7 @@ const getUser = async (uid:string) => {
     return(userRef.data());
 };
 
-const cleanupLobbies = async ({lobby, game}:{lobby:string|false, game:string|false},uid:string) => {
+export const cleanupLobbies = async ({lobby, game}:{lobby:string|false, game:string|false},uid:string) => {
     if (lobby) {
         const { response: leaveResponse, error: leaveError } = await BackendLobbyService.leave(lobby, uid);
         if (leaveResponse && !leaveResponse.length) {
@@ -92,7 +92,7 @@ export const joinLobby = async (req:AuthRequest, res:Response) => {
         await cleanupLobbies(user.open, uid);
         user.open.game = false;
         user.open.lobby = lobbyName;
-        const usersRef = await db.collection('users');
+        const usersRef = db.collection('users');
         await usersRef.doc(uid).set(user);
         const { response, error } = await BackendLobbyService.join(lobbyName, uid, user);
         if (error) {
@@ -113,9 +113,22 @@ export const removeLobby = async (req:AuthRequest, res:Response) => {
     };
 };
 
+export const leaveLobby = async (req:AuthRequest, res:Response) => {
+    const { uid } = req.userInfo;
+    const user:UserType = await getUser(uid);
+    const { name, player } = req.body;
+    if (uid!==player) return res.status(403).json({ success: false, msg: "cannot remove another user" });
+    cleanupLobbies(user.open, uid);
+    user.open.lobby = false;
+    const usersRef = db.collection('users');
+    await usersRef.doc(uid).set(user);
+    return res.status(200).json({ success: true, msg: `${player} successfully left lobby ${name}`, user });
+};
+
 export default {
     validateLobby,
     createLobby,
     joinLobby,
     removeLobby,
+    leaveLobby,
 };

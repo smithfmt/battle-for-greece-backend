@@ -1,11 +1,12 @@
 import _ from 'lodash';
-import { CardType, PlayerType, SquareType, LobbyType, GameType } from "../backend-types";
+import { CardType, PlayerType, SquareType, LobbyType, GameType, BattleType } from "../backend-types";
 import { base } from "../config/firebase-config";
 const lobbiesRef = base.ref("lobbies");
 const gamesRef = base.ref("games");
-import { generals, basicCards, heroCards } from "../data";
+import { generals, basicCards, heroCards, battleCards } from "../data";
 import { shuffle, removeDuplicates, loop, addArr, invertConnection, generateMatrixes, range } from "../backend-helpers";
 import { findAdjacentCard, mapConnection } from "../board-nav";
+import UserController from '../controllers/userController';
 
 const getLobby = async (lobbyName:string) => {
   const lobbyRef = lobbiesRef.child(lobbyName)
@@ -147,7 +148,7 @@ const calcCost = (cost:number, red:number, green:number, blue:number, type:strin
 // Activate Connections 
 const blankConnects = ["inactive", "inactive", "inactive", "inactive"];
 const activeConnects = (cards:{card:CardType,square:SquareType}[]) => {
-  let connectedCards = [...cards];
+  let connectedCards = [...cards].filter(cdObj => {return cdObj});
   connectedCards.forEach(cardObj => {
     const { card, square } = cardObj;
     card.activeConnections = [...blankConnects];
@@ -345,8 +346,10 @@ const tryToBuy = (buyCard:CardType, hand:CardType[]) => {
 // Check for bad placement
 const checkPlacement = (cards:{card:CardType,square:SquareType}[]) => {
   if (cards.length===1) return true;
+  // Map over cards and return an array of connected card Objects
   let connectedIds = cards.map(cardObj => {
     const connections = [...cardObj.card.connections];
+    // Create an array of potentially connected squares
     const newSquares = connections.map((con,i) => {
       let dirMatrix = [-1,0];
       switch (i) {
@@ -360,6 +363,7 @@ const checkPlacement = (cards:{card:CardType,square:SquareType}[]) => {
       };
       return addArr(cardObj.square, dirMatrix);
     });
+    // Map over these squares and return connected card objects if a card occupies them
     let newCardIds = newSquares.map(squ => {
       const newCardObj = cards.filter(obj => {
         return _.isEqual(squ, obj.square);
@@ -367,9 +371,12 @@ const checkPlacement = (cards:{card:CardType,square:SquareType}[]) => {
       if (!newCardObj) return {id:null, general:false, parent:null};
       return {id: newCardObj.card.id, general: newCardObj.card.type==="general", parent:cardObj.card.id};
     });
+    // Filter out empty places
     return newCardIds.filter(val => {return val.id!==null});
   });
-  // add general to success array
+  // check to see if any card is not connected to anything
+  if (connectedIds.filter(arr => {return !arr.length}).length) return false;
+  // an array of successfully placed card ids (general by default)
   let successArr:number[] = [0];
   // {
   for (let i=0;i<cards.length;i++) {
@@ -419,16 +426,20 @@ export const create = async (lobbyName:string, botNumber:number, uid:string) => 
       });
     };
     Object.keys(players).forEach(player => {
+      players[player].wins = 0;
       if (!players[player].bot) return;
       const botGeneral:CardType = players[player].generalChoice[Math.floor(3*Math.random())];
+      botGeneral.team = player;
       botGeneral.id = 0;
       players[player].id++;
       players[player].board = {cards: activeConnects([{card: botGeneral, square: [0,0]}])};
       players[player].generalChoice = null;
       players[player].hand = [];
+      // give each bot 3 basics
       loop(3, () => {
         const basic = cardConnect({...shuffle([...basicCards])[0]});
-        basic.id = players[player].id
+        basic.id = players[player].id;
+        basic.team = player;
         players[player].id++;
         players[player].hand.push(basic);
       });
@@ -459,6 +470,10 @@ export const create = async (lobbyName:string, botNumber:number, uid:string) => 
         started:false,
         battles:[],
       },
+      battleFrequency: 15,
+      cardsSinceBattle: 0,
+      battleList: shuffle(battleCards),
+      winsToWin: 3,
     };
   // -------------------- //
     await lobbyRef.set({ ...lobbyData, starting: true });
@@ -486,6 +501,7 @@ export const leave = async (gameName:string, uid:string) => {
     players[`BOT${uid}`].uid = "bot";
     players[`BOT${uid}`].bot = true;
     await gameRef.set(updatedGameData);
+    console.log(Object.keys(players).filter(player => {return !players[player].bot}));
     return {response: Object.keys(players).filter(player => {return !players[player].bot})};
   } catch (e) {
     console.log(e)
@@ -518,13 +534,16 @@ export const updatePlayer = async (gameName:string, player:string, updating:stri
       case "general":
         data.card.activeConnections = [...blankConnects];
         data.card.id = updatedPlayer.id;
+        data.card.team = player;
         updatedPlayer.id++;
         updatedPlayer.board = {cards: [{...data}], canPlace: calcCanPlace([{...data}])};
         updatedPlayer.generalChoice = null;
         updatedPlayer.hand = [];
+        // give player 3 basics
         loop(3, () => {
           const basic = cardConnect({...shuffle([...basicCards])[0]});
           basic.id = updatedPlayer.id
+          basic.team = player;
           updatedPlayer.id++;
           updatedPlayer.hand.push(basic);
         });
@@ -558,6 +577,7 @@ export const updatePlayer = async (gameName:string, player:string, updating:stri
         const canBuy = calcPaid(data.payment,data.card);
         if (!canBuy) return {error: "This payment is incorrect"};
         data.card.id = updatedPlayer.id
+        data.card.team = player;
         updatedPlayer.id++;
         updatedPlayer.hand? 
           updatedPlayer.hand.push(data.card) :
@@ -582,7 +602,7 @@ export const updatePlayer = async (gameName:string, player:string, updating:stri
         break;
     };
     await gameRef.set(updatedGameData);
-    return {response: updatedGameData.gamename};
+    return {response: updatedGameData.gameName};
   } catch (e) {
     console.log(e)
     return {error: "Error sending to database"};
@@ -634,7 +654,7 @@ export const runBotTurn = async (gameName:string, botUid:string) => {
   console.log("doing Bot Turn!", botUid)
   try {
     // Draw Card
-    const { response, error } = await drawBasic(gameName, botUid);
+    const { error } = await drawBasic(gameName, botUid);
     if (error) return { error };
     // Retrieve Game data to adjust positions
     const { gameData, gameRef } = await getGame(gameName);
@@ -646,7 +666,7 @@ export const runBotTurn = async (gameName:string, botUid:string) => {
     });
     bot.board.cards = [{...bot.board.cards[0]}];
     // Buy Cards
-    const shopOptions = {prefer: "expensive",freq:3};
+    const shopOptions = {prefer: "expensive",freq:4};
     if (!bot.shopBoughtCounter) {
       let shop:CardType[] = [];
       switch (shopOptions.prefer) {
@@ -665,8 +685,9 @@ export const runBotTurn = async (gameName:string, botUid:string) => {
       });
       if (canBuy.length) {
         const { card, payment } = canBuy[0];
-        card.id = bot.id
+        card.id = bot.id;
         bot.id++;
+        card.team = botUid;
         bot.hand? 
           bot.hand.push(card) :
           bot.hand = [{...card}];
@@ -718,7 +739,16 @@ export const drawBasic = async (gameName:string, uid:string) => {
     };
     const updatedGameData = {...gameData};
     const basic = cardConnect({...shuffle([...basicCards])[0]});
+    if (updatedGameData.cardsSinceBattle>updatedGameData.battleFrequency) {
+      if (Math.floor(Math.random()*1)===0) {
+        let res = await startBattle(gameName);
+        if (res.response) return {response: res.response};
+        return {error: res.error};
+      };
+    };
+    updatedGameData.cardsSinceBattle++;
     basic.id = updatedGameData.players[uid].id
+    basic.team = uid;
     updatedGameData.players[uid].id++;
     updatedGameData.players[uid].hand?
       updatedGameData.players[uid].hand.push(basic)
@@ -734,6 +764,256 @@ export const drawBasic = async (gameName:string, uid:string) => {
   };
 };
 
+export const startBattle = async (gameName:string) => {
+  try {
+    const { gameData, gameRef } = await getGame(gameName);
+    if (!gameData) {
+      return {error: "This game does not exist"};
+    };
+    const updatedGameData = {...gameData};
+    let battles = [];
+    shuffle(Object.keys(updatedGameData.players)).forEach(player => {
+      battles.length?
+        battles[battles.length-1].players.length===2?
+        battles.push({players:[updatedGameData.players[player]]})
+        :
+        battles[battles.length-1].players.push(updatedGameData.players[player])
+      :
+      battles.push({players:[updatedGameData.players[player]]});
+    });
+    const battleCard = updatedGameData.battleList.shift();
+    battles.forEach(battle => {battle.whoTurn = shuffle(battle.players)[0].uid});
+    updatedGameData.battle = {
+      started: true,
+      battles,
+    };
+    await gameRef.set(updatedGameData);
+    return {response: battleCard};
+  } catch (e) {
+    console.log(e)
+    return {error: "Error sending to database"};
+  };  
+};
+
+export const endBattleTurn = async (gameName:string, uid:string) => {
+  try {
+    const { gameData, gameRef } = await getGame(gameName);
+    if (!gameData) {
+      return {error: "This game does not exist"};
+    };
+    const updatedGameData = {...gameData};
+    let battleIndex = 0;
+    const battle = updatedGameData.battle.battles.filter((bat:BattleType, index:number) => {
+      if (bat.players.filter(player => {return player.uid===uid}).length) {
+        battleIndex = index;
+        return true;
+      };
+      return false;
+    })[0];
+    const { players } = battle;
+    const uids = players.map(player => {return player.uid});
+    const nextPlayer = uids.filter(id => {return id!==uid})[0];
+    updatedGameData.players[uid].attacked = false;
+    updatedGameData.battle.battles[battleIndex].whoTurn = nextPlayer;
+    await gameRef.set(updatedGameData);
+    const bot:boolean = updatedGameData.players[nextPlayer].bot;
+    return {response: {nextPlayer, bot}};
+  } catch (e) {
+    console.log(e)
+    return {error: "Error sending to database"};
+  };
+};
+
+export const runBotBattleTurn = async (gameName:string, botUid:string) => {
+  try {
+    const { gameData, gameRef } = await getGame(gameName);
+    if (!gameData) {
+      return {error: "This game does not exist"};
+    };
+    const updatedGameData = {...gameData};
+    let battleIndex = 0;
+    const battle = updatedGameData.battle.battles.filter((bat:BattleType, index:number) => {
+      if (bat.players.filter(player => {return player.uid===botUid}).length) {
+        battleIndex = index;
+        return true;
+      };
+      return false;
+    })[0];
+    const { players } = battle;
+    const uids = players.map(player => {return player.uid});
+    await gameRef.set(updatedGameData);
+    return {response: botUid};
+  } catch (e) {
+    console.log(e)
+    return {error: `Error in ${botUid}'s turn`};
+  };
+};
+
+export const updateBattle = async (gameName:string, player:string, updating:string, data:any) => {
+  try {
+    const { gameData, gameRef } = await getGame(gameName);
+    if (!gameData) {
+      return { error: "This game does not exist"};
+    };
+    const updatedGameData = {...gameData};
+    let updatedBattleIndex:number;
+    const updatedBattle = updatedGameData.battle.battles.filter((bat, index) => {
+      if (bat.players.filter(plyr => {return plyr.uid===player}).length) {
+        updatedBattleIndex = index;
+        return true;
+      };
+      return false;
+    })[0];
+    if (updatedBattle.whoTurn!==player) {
+      return { error: "Not your turn"};
+    };
+    let playerIndex:number;
+    let oponentIndex:number;
+    if (updatedBattle.players[0].uid===player) {
+      playerIndex = 0;
+      oponentIndex = 1;
+    } else {
+      playerIndex = 1;
+      oponentIndex = 0;
+    };
+    const { attackedCard, attackingCard, oponent } = data;
+    let attackerIndex:number;
+    let defenderIndex:number;
+    const attacker = updatedBattle.players[playerIndex].board.cards.filter((cd,index) => {
+      if (cd.card.id===attackingCard.card.id) {
+        attackerIndex = index;
+        return true;
+      };
+      return false;
+    })[0];
+    const defender = updatedBattle.players[oponentIndex].board.cards.filter((cd,index) => {
+      if (cd.card.id===attackedCard.card.id) {
+        defenderIndex = index;
+        return true;
+      };
+      return false;
+    })[0];
+    switch (updating) {
+      case "attack":
+        if (attacker.card.atk===0) return {error: "Attacker has no attack"};
+        if (updatedGameData.players[player].attacked) return {error: "Player has already attacked"};
+        // Calc connection bonuses
+        let bonuses = [[0,0],[0,0]];
+        [attacker,defender].forEach((cardObj, index) => cardObj.card.activeConnections.forEach((con) => {
+          switch (con) {
+            case "red":
+              bonuses[index][0]++;
+              break;
+            case "green":
+              bonuses[index][1]++;
+              break;
+            case "blue":
+              bonuses[index][0]++;
+              bonuses[index][1]++;
+              break;
+            default: break;
+          };
+        }));
+        attacker.card.hp = attacker.card.hp - defender.card.atk;
+        defender.card.hp = defender.card.hp - attacker.card.atk - bonuses[0][0] + bonuses[1][1];
+        updatedGameData.players[player].attacked = true;
+        break;
+      case "cast":
+        if (attacker.card.style!=="bolt") return {error: "Attacker has no ability"};
+        if (attacker.card.cast) return {error: "Attacker has already cast"};
+        break;
+      default: break;
+    };
+    const attackerAlive = attacker.card.hp>0;
+    const defenderAlive = defender.card.hp>0;
+    let playerCards = updatedBattle.players[playerIndex].board.cards;
+    let oponentCards = updatedBattle.players[oponentIndex].board.cards;
+    // filter out dead equipment
+    const checkEquipment = (cards:{card:CardType,square:SquareType}[], testCard:{card:CardType,square:SquareType}) => {
+      const connections = [...testCard.card.connections];
+      // Create an array of potentially connected squares
+      const newSquares = connections.map((con,i) => {
+        let dirMatrix = [-1,0];
+        switch (i) {
+          case 0:
+            dirMatrix = [0,1];break;
+          case 1:
+            dirMatrix = [1,0];break;
+          case 2:
+            dirMatrix = [0,-1];break;
+          default: break;
+        };
+        return addArr(testCard.square, dirMatrix);
+      });
+      const filtered = cards.filter(cardObj => {
+        if (newSquares.filter(squ => _.isEqual(squ, cardObj.square)).length&&cardObj.card.ability==="Equipment") {
+          return false;
+        };
+        return true;
+      });
+      return filtered
+    };
+    if (!attackerAlive) {
+      playerCards = activeConnects(checkEquipment(playerCards, attacker).filter(cdObj => {return cdObj.card.id!==attacker.card.id}));
+    };
+    if (!defenderAlive) {
+      oponentCards = activeConnects(checkEquipment(oponentCards, defender).filter(cdObj => {return cdObj.card.id!==defender.card.id}));
+    };
+    updatedBattle.players[playerIndex].board.cards = playerCards;
+    updatedBattle.players[oponentIndex].board.cards = oponentCards;
+    updatedGameData.battle.battles[updatedBattleIndex] = updatedBattle;
+    await gameRef.set(updatedGameData);
+    return {response: {updatedBattle, updatedBattleIndex}};
+  } catch (e) {
+    console.log(e)
+    return {error: "Error sending to database"};
+  };
+};
+
+export const endBattle = async (gameName:string, winner:string, draw:boolean, battleIndex:number) => {
+  try {
+    const { gameData, gameRef } = await getGame(gameName);
+    if (!gameData) {
+      return {error: "This game does not exist"};
+    };
+    const updatedGameData = {...gameData};
+    const updatedBattle = updatedGameData.battle.battles[battleIndex];
+    updatedBattle.ended = true;
+    let gameWinner = "";
+    if (winner&&!draw) {
+      updatedGameData.players[winner].wins++;     
+      if (updatedGameData.players[winner].wins===updatedGameData.winsToWin) gameWinner = winner;
+    };
+    const allBattlesEnded = !updatedGameData.battle.battles.map(bat => {return bat.ended}).filter(ended => {return !ended}).length;
+    if (allBattlesEnded) updatedGameData.battle.started = false;
+    await gameRef.set(updatedGameData);
+    return {response: {msg:`ended battle ${battleIndex}`, gameWinner, allBattlesEnded}};
+  } catch (e) {
+    console.log(e)
+    return {error: `Error connecting to Database`};
+  };
+};
+
+export const endGame = async (gameName:string, winner:string) => {
+  try {
+    const { gameData, gameRef } = await getGame(gameName);
+    if (!gameData) {
+      return {error: "This game does not exist"};
+    };
+    const updatedGameData = {...gameData};
+    const errors = await Promise.all(Object.keys(updatedGameData.players).map(async player => {
+      if (updatedGameData.players[player].bot) return {error: false};
+      return UserController.saveGame(updatedGameData, updatedGameData.players[player].uid, winner);
+    }));
+    console.log(errors)
+    if (errors.filter(err => {return err.error}).length) return {error: `Error saving games`};
+    return { response: "game ended" };
+  } catch (e) {
+    console.log(e)
+    return {error: `Error connecting to Database`};
+  };
+};
+
 export default {
   create,
   leave,
@@ -742,4 +1022,9 @@ export default {
   nextTurn,
   runBotTurn,
   drawBasic,
+  endBattleTurn,
+  runBotBattleTurn,
+  updateBattle,
+  endBattle,
+  endGame,
 };

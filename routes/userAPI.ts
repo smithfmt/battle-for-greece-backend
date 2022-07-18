@@ -5,7 +5,6 @@ import lobbyController from "../controllers/lobbyController";
 import gameController from "../controllers/gameController";
 router.use(express.json());
 import { Firestore } from '@google-cloud/firestore';
-
 import { AuthRequest } from "../backend-types";
 
 const db = new Firestore({
@@ -67,6 +66,14 @@ router.post("/lobby",
   lobbyController.createLobby,
 );
 
+router.put("/leave/lobby",
+  lobbyController.leaveLobby,
+);
+
+router.put("/leave/game",
+  gameController.leaveGame,
+);
+
 router.post("/join",
   lobbyController.joinLobby,
 );
@@ -90,6 +97,14 @@ router.put("/nextTurn",
 
 router.put("/drawBasic",
   gameController.drawBasic,
+);
+
+router.put("/endBattleTurn",
+  gameController.endBattleTurn,
+);
+
+router.put("/updateBattle",
+  gameController.updateBattle,
 );
 
 export default router;

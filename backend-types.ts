@@ -20,12 +20,28 @@ export type CardType = {
   name: string,
   id?: number,
   ability: string,
+  atk: number,
+  hp: number,
+  style: string,
+  cast?: boolean,
+  team?: string,
 };
 
 export type SquareType = [number,number];
 
 export type PlayerType = {
   uid: string,
+  username: string,
+  board: {
+    cards: {
+      card: CardType, 
+      square: SquareType,
+    }[],
+    canPlace: SquareType[]
+  },
+  hand?: CardType[],
+  wins?: number,
+  bot?:boolean,
 };
 
 export type LobbyType = {
@@ -41,7 +57,7 @@ export type LobbyType = {
 export interface UserType extends DocumentData {
   username?: string,
   wins?: number,
-  games?: number,
+  games?: any,
   open?: {
     lobby: string|false,
     game: string|false,
@@ -49,15 +65,27 @@ export interface UserType extends DocumentData {
 };
 
 export type GameType = {
-  players: {
-    uid: string,
-    username: string,
-  }[],
-  gamename: string,
+  players: PlayerType[],
+  gameName: string,
   whoTurn: string,
   turnOrder: string[],
   shopOrder: CardType[],
   shopBought: boolean,
   cycleShop: number,
   whoFirst: string,
+  battle: {
+    started:boolean,
+    battles: BattleType[],
+  },
+  cardsSinceBattle: number,
+  battleFrequency: number,
+  battleList: CardType[],
+  winsToWin: number,
+  host: string,
+};
+
+export type BattleType = {
+  players: PlayerType[],
+  whoTurn: string,
+  ended?: boolean,
 };
