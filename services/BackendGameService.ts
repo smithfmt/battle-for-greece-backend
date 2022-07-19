@@ -509,11 +509,17 @@ export const leave = async (gameName:string, uid:string) => {
   };
 };
 
-export const close = async (gameName:string) => {
+export const close = async (gameName:string, ending?:boolean, player?:string) => {
   try {
     const { gameData, gameRef } = await getGame(gameName);
     if (!gameData) {
       return {error: "This game does not exist"};
+    };
+    if (ending&&!gameData.ended) {
+      return {error: "This game has not ended"};
+    };
+    if (!gameData.players[player]) {
+      return {error: "This player is not in this game"};
     };
     gameRef.remove();
     return {response: gameName};
@@ -656,6 +662,8 @@ export const runBotTurn = async (gameName:string, botUid:string) => {
     // Draw Card
     const { error } = await drawBasic(gameName, botUid);
     if (error) return { error };
+    //OVERRIDE
+    return {response: botUid};
     // Retrieve Game data to adjust positions
     const { gameData, gameRef } = await getGame(gameName);
     const updatedGameData = {...gameData};
@@ -1002,12 +1010,14 @@ export const endGame = async (gameName:string, winner:string) => {
     };
     const updatedGameData = {...gameData};
     const errors = await Promise.all(Object.keys(updatedGameData.players).map(async player => {
-      if (updatedGameData.players[player].bot) return {error: false};
+      if (updatedGameData.players[player].bot) return {error: false, response: ""};
       return UserController.saveGame(updatedGameData, updatedGameData.players[player].uid, winner);
     }));
-    console.log(errors)
     if (errors.filter(err => {return err.error}).length) return {error: `Error saving games`};
-    return { response: "game ended" };
+    const gameID = errors.filter(obj => {return obj.response})[0].response;
+    updatedGameData.ended = true;
+    await gameRef.set(updatedGameData);
+    return { response: gameID };
   } catch (e) {
     console.log(e)
     return {error: `Error connecting to Database`};

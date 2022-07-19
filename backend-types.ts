@@ -82,6 +82,7 @@ export type GameType = {
   battleList: CardType[],
   winsToWin: number,
   host: string,
+  ended?: boolean,
 };
 
 export type BattleType = {

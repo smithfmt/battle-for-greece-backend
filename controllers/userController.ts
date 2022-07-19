@@ -1,5 +1,6 @@
 import { body, validationResult } from "express-validator";
 import { Firestore } from '@google-cloud/firestore';
+import _ from "lodash";
 
 import BackendLobbyService from "../services/BackendLobbyService";
 import { NextFunction, Response } from "express";
@@ -108,10 +109,10 @@ export const saveGame = async (gameData:GameType, uid:string, winner:string) => 
     try {
         const { host, battleFrequency, gameName, whoFirst, winsToWin, players } = gameData;
         const cards = {};
+        const gameID = `${Date.now()}`;
         players[uid].board.cards.forEach(cardObj => cards[`${cardObj.square[0]}-${cardObj.square[1]}`]=cardObj.card)
         const user:UserType = await getUser(uid);
-        if (!user.games) user.games = {};
-        user.games[gameData.gameName] = {
+        const newGameData = {
             host,
             battleFrequency,
             gameName,
@@ -120,18 +121,42 @@ export const saveGame = async (gameData:GameType, uid:string, winner:string) => 
             cards,
             winner,
         };
+        if (!user.games) user.games = {};
+        const foundGame = Object.keys(user.games).filter(id => {
+            return _.isEqual(user.games[id], newGameData)
+        });
+        if (foundGame.length) {
+            return { response: foundGame[0]};
+        };
+        user.games[gameID] = newGameData;
         user.open = {
             lobby: false,
             game: false,
         };
         if (winner===uid) user.wins?user.wins++:user.wins=1;
         const usersRef = db.collection('users');
-        console.log("setting!", user)
         await usersRef.doc(uid).set(user);
-        return { response: "successfully saved"}
+        return { response: gameID}
     } catch (e) {
         console.log(e)
         return { error: "error contacting database" }
+    };
+};
+
+export const getGame = async (req:AuthRequest, res:Response) => {
+    try {
+        const { uid } = req.userInfo;
+        const gameID = req.query.gameID as string;
+        const userRef = db.collection('users').doc(uid);
+        const userSnapshot = await userRef.get();
+        const userData = userSnapshot.data();
+        const gameData = userData.games[gameID];
+        if (!gameData) {
+            return res.status(403).json({ success: false, msg: "Game not found" });
+        };
+        return res.status(200).json({ success: true, msg: "here are your game results", gameData });
+    } catch {
+        res.status(500).json({ success: false, msg: "Internal Server Error" });
     };
 };
 
@@ -142,4 +167,5 @@ export default {
     getAllUsers,
     getUser,
     saveGame,
+    getGame,
 };

@@ -107,4 +107,12 @@ router.put("/updateBattle",
   gameController.updateBattle,
 );
 
+router.put("/endGame",
+  gameController.endGame,
+);  
+
+router.get("/results",
+  userController.getGame,
+);
+
 export default router;

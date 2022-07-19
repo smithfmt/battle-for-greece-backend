@@ -117,17 +117,13 @@ export const updateBattle = async (req:AuthRequest, res:Response) => {
         };
         const { msg, gameWinner, allBattlesEnded } = response;
         if (gameWinner&&allBattlesEnded) {
-            const { error } = await BackendGameService.endGame(gameName, gameWinner);
+            const { response, error } = await BackendGameService.endGame(gameName, gameWinner);
             if (error) {
                 return res.status(403).json({ success: false, msg: error });
             };
-            const { response, error:closeError} = await BackendGameService.close(gameName);
-            if (closeError) {
-                return res.status(403).json({ success: false, msg: closeError });
-            };
-            return res.status(200).json({ success: true, msg, response });
+            return res.status(200).json({ success: true, msg: "successfully ended game", id: response });
         };
-        return res.status(200).json({ success: true, msg, response });
+        return res.status(200).json({ success: true, msg: response });
     };
     return res.status(200).json({ success: true, msg: `attacked ${data.attackedCard.card.uid}`, response });
 };
@@ -149,6 +145,21 @@ export const leaveGame = async (req:AuthRequest, res:Response) => {
     };    
 };
 
+export const endGame = async (req:AuthRequest, res:Response) => {
+    try {
+        const { uid } = req.userInfo;
+        const { gameName, player } = req.body;
+        const { response, error} = await BackendGameService.close(gameName, true, player);
+        if (error) {
+            return res.status(403).json({ success: false, msg: error });
+        };
+        return res.status(200).json({ success: true, msg: response });
+    } catch (e) {
+        console.log(e);
+        return res.status(403).json({ success: false, msg: "error contacting database" })
+    };    
+};
+
 export default {
     createGame,
     updatePlayer,
@@ -157,4 +168,5 @@ export default {
     endBattleTurn,
     updateBattle,
     leaveGame,
+    endGame,
 };
