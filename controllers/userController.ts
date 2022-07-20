@@ -107,7 +107,7 @@ export const getAllUsers = async (req:AuthRequest, res:Response) => {
 
 export const saveGame = async (gameData:GameType, uid:string, winner:string) => {
     try {
-        const { host, battleFrequency, gameName, whoFirst, winsToWin, players } = gameData;
+        const { host, battleFrequency, gameName, whoFirst, winsToWin, players,} = gameData;
         const cards = {};
         const gameID = `${Date.now()}`;
         players[uid].board.cards.forEach(cardObj => cards[`${cardObj.square[0]}-${cardObj.square[1]}`]=cardObj.card)
@@ -120,6 +120,7 @@ export const saveGame = async (gameData:GameType, uid:string, winner:string) => 
             winsToWin,
             cards,
             winner,
+            general:players[uid].board.cards[0].card.name,
         };
         if (!user.games) user.games = {};
         const foundGame = Object.keys(user.games).filter(id => {
@@ -160,6 +161,28 @@ export const getGame = async (req:AuthRequest, res:Response) => {
     };
 };
 
+export const getAllGames = async (req:AuthRequest, res:Response) => {
+    try {
+        const { uid } = req.userInfo;
+        const usersRef = db.collection('users');
+        const userSnapshot = await usersRef.doc(uid).get();
+        const userData = userSnapshot.data();
+        const { games } = userData;
+        if (!games||!Object.keys(games).length) {
+
+            return res.status(200).json({ success: true, msg: "no game results", games: [] });
+        };
+        let gameData = [];
+        Object.keys(games).forEach(async id => {
+            const { gameName:name, winner, general } = games[id];
+            gameData.push({ id, name, winner, general });
+        });
+        return res.status(200).json({ success: true, msg: "here are your results", games: gameData });
+    } catch {
+        res.status(500).json({ success: false, msg: "Internal Server Error" });
+    };
+};
+
 export default {
     validateAccount,
     createAccount,
@@ -168,4 +191,5 @@ export default {
     getUser,
     saveGame,
     getGame,
+    getAllGames,
 };

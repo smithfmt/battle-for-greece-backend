@@ -2,7 +2,7 @@ import { Firestore } from '@google-cloud/firestore';
 import { AuthRequest, UserType } from "../backend-types";
 import { NextFunction, Response } from "express";
 import { cleanupLobbies } from "./lobbyController";
-import { getUser, saveGame } from "./userController";
+import { getUser } from "./userController";
 import BackendGameService from "../services/BackendGameService";
 
 const db = new Firestore({

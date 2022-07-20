@@ -1009,9 +1009,10 @@ export const endGame = async (gameName:string, winner:string) => {
       return {error: "This game does not exist"};
     };
     const updatedGameData = {...gameData};
+    const winnerName = updatedGameData.players[winner].username?updatedGameData.players[winner].username:winner;
     const errors = await Promise.all(Object.keys(updatedGameData.players).map(async player => {
       if (updatedGameData.players[player].bot) return {error: false, response: ""};
-      return UserController.saveGame(updatedGameData, updatedGameData.players[player].uid, winner);
+      return UserController.saveGame(updatedGameData, updatedGameData.players[player].uid, winnerName);
     }));
     if (errors.filter(err => {return err.error}).length) return {error: `Error saving games`};
     const gameID = errors.filter(obj => {return obj.response})[0].response;

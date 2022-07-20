@@ -115,4 +115,8 @@ router.get("/results",
   userController.getGame,
 );
 
+router.get("/allResults",
+  userController.getAllGames,
+);
+
 export default router;
