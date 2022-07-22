@@ -107,11 +107,14 @@ export const getAllUsers = async (req:AuthRequest, res:Response) => {
 
 export const saveGame = async (gameData:GameType, uid:string, winner:string) => {
     try {
-        const { host, battleFrequency, gameName, whoFirst, winsToWin, players,} = gameData;
+        const { host, battleFrequency, gameName, whoFirst, winsToWin, players, turnNumber} = gameData;
         const cards = {};
         const gameID = `${Date.now()}`;
-        players[uid].board.cards.forEach(cardObj => cards[`${cardObj.square[0]}-${cardObj.square[1]}`]=cardObj.card)
+        players[uid].board.cards.forEach(cardObj => cards[`${cardObj.square[0]}#${cardObj.square[1]}`]=cardObj.card)
         const user:UserType = await getUser(uid);
+        const winnerUid = players[Object.keys(players).filter(player => {return players[player].username===winner})[0]].uid;
+        const botMatch = !Object.keys(players).filter(player => {return !(players[player].bot||players[player].uid===uid)}).length;
+        console.log(botMatch)
         const newGameData = {
             host,
             battleFrequency,
@@ -120,6 +123,10 @@ export const saveGame = async (gameData:GameType, uid:string, winner:string) => 
             winsToWin,
             cards,
             winner,
+            winnerUid,
+            wins: players[uid].wins,
+            turnNumber,
+            botMatch,
             general:players[uid].board.cards[0].card.name,
         };
         if (!user.games) user.games = {};

@@ -83,6 +83,7 @@ export type GameType = {
   winsToWin: number,
   host: string,
   ended?: boolean,
+  turnNumber:number,
 };
 
 export type BattleType = {

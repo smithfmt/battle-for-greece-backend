@@ -474,6 +474,7 @@ export const create = async (lobbyName:string, botNumber:number, uid:string) => 
       cardsSinceBattle: 0,
       battleList: shuffle(battleCards),
       winsToWin: 3,
+      turnNumber: 1,
     };
   // -------------------- //
     await lobbyRef.set({ ...lobbyData, starting: true });
@@ -593,9 +594,9 @@ export const updatePlayer = async (gameName:string, player:string, updating:stri
             return !_.isEqual(payCard, handCard);
           });
         });
-        const isFirstShopCard = _.isEqual(_.omit(updatedGameData.shopOrder[0],["id"]), _.omit(data.card,["id"]));
+        const isFirstShopCard = _.isEqual(_.omit(updatedGameData.shopOrder[0],["id", "team"]), _.omit(data.card,["id", "team"]));
         updatedGameData.shopOrder = updatedGameData.shopOrder.filter((shopCard:CardType) => {
-          return !_.isEqual(_.omit(shopCard,["id"]), _.omit(data.card,["id"]));
+          return !_.isEqual(_.omit(shopCard,["id", "team"]), _.omit(data.card,["id", "team"]));
         });
         updatedGameData.shopBought = true;
         if (isFirstShopCard || updatedGameData.cycleShop===2) {
@@ -645,6 +646,7 @@ export const nextTurn = async (gameName:string, uid:string) => {
         };
       };
       updatedGameData.shopBought = false;
+      updatedGameData.turnNumber++;
     };
     updatedGameData.whoTurn = whoNext;
     await gameRef.set(updatedGameData);
@@ -662,8 +664,10 @@ export const runBotTurn = async (gameName:string, botUid:string) => {
     // Draw Card
     const { error } = await drawBasic(gameName, botUid);
     if (error) return { error };
+
     //OVERRIDE
-    return {response: botUid};
+    // return {response: botUid};
+
     // Retrieve Game data to adjust positions
     const { gameData, gameRef } = await getGame(gameName);
     const updatedGameData = {...gameData};
@@ -704,9 +708,9 @@ export const runBotTurn = async (gameName:string, botUid:string) => {
             return !_.isEqual(payCard, handCard);
           });
         });
-        const isFirstShopCard = _.isEqual(_.omit(updatedGameData.shopOrder[0],["id"]), _.omit(card,["id"]));
+        const isFirstShopCard = _.isEqual(_.omit(updatedGameData.shopOrder[0],["id", "team"]), _.omit(card,["id", "team"]));
         updatedGameData.shopOrder = updatedGameData.shopOrder.filter((shopCard:CardType) => {
-          return !_.isEqual(_.omit(shopCard,["id"]), _.omit(card,["id"]));
+          return !_.isEqual(_.omit(shopCard,["id", "team"]), _.omit(card,["id", "team"]));
         });
         updatedGameData.shopBought = true;
         if (isFirstShopCard || updatedGameData.cycleShop===2) {
